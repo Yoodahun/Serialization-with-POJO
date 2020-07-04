@@ -1,4 +1,10 @@
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 import org.testng.annotations.Test;
 import pojo.googleAPI.AddPlace;
 import pojo.googleAPI.subClass.Location;
@@ -23,6 +29,25 @@ public class GoogleAPITest {
                 .extract().response().asString();
 
         System.out.println(response);
+    }
+
+    @Test
+    public void googleAPITestUsingSpecBuilder() {
+        RequestSpecification req = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com")
+                                .addQueryParam("key", "qaclick123")
+                                .setContentType(ContentType.JSON)
+                                .build();
+        ResponseSpecification res = new ResponseSpecBuilder().expectStatusCode(200)
+                                        .expectContentType(ContentType.JSON)
+                                        .build();
+
+        req.log().all().spec(req).body(serializationAddPlace());
+        String response = req.when().post("/maps/api/place/add/json")
+                            .then().log().all()
+                            .assertThat().spec(res).extract().response().asString();
+
+        System.out.println(response);
+
     }
 
     private AddPlace serializationAddPlace() {
